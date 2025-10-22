@@ -1,0 +1,264 @@
+.messageWrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 0 4px;
+  position: relative;
+}
+
+.ownMessage {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.otherMessage {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.grouped {
+  margin-bottom: 1px;
+}
+
+.grouped.otherMessage {
+  margin-top: -2px;
+}
+
+.grouped.ownMessage {
+  margin-top: -2px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.ownAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.avatarText {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+}
+
+.messageContent {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ownMessage .messageContent {
+  align-items: flex-end;
+}
+
+.otherMessage .messageContent {
+  align-items: flex-start;
+}
+
+.senderName {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-left: 12px;
+  margin-bottom: 2px;
+}
+
+.messageBubble {
+  padding: 8px 12px;
+  border-radius: 18px;
+  position: relative;
+  word-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.ownBubble {
+  background: linear-gradient(135deg, #DCF8C6 0%, #B8E6B8 100%);
+  border-bottom-right-radius: 4px;
+  color: #333;
+}
+
+.otherBubble {
+  background: white;
+  border-bottom-left-radius: 4px;
+  color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.messageText {
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.messageMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.ownMeta {
+  justify-content: flex-end;
+  color: #666;
+}
+
+.otherMeta {
+  justify-content: flex-start;
+  color: #999;
+}
+
+.timestamp {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.statusContainer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.statusIcon {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* Hover effects */
+.messageWrapper:hover .timestamp {
+  opacity: 1;
+}
+
+.messageWrapper:hover .statusIcon {
+  opacity: 1;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .senderName {
+    color: #ccc;
+  }
+  
+  .ownBubble {
+    background: linear-gradient(135deg, #2d5a3d 0%, #1e3a2e 100%);
+    color: #e0e0e0;
+  }
+  
+  .otherBubble {
+    background: #2a2a2a;
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .ownMeta {
+    color: #aaa;
+  }
+  
+  .otherMeta {
+    color: #888;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .messageContent {
+    max-width: 75%;
+  }
+  
+  .messageBubble {
+    padding: 6px 10px;
+    border-radius: 16px;
+  }
+  
+  .messageText {
+    font-size: 13px;
+  }
+  
+  .avatar, .ownAvatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .avatarText {
+    font-size: 10px;
+  }
+  
+  .senderName {
+    font-size: 11px;
+  }
+  
+  .timestamp {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .messageContent {
+    max-width: 80%;
+  }
+  
+  .messageBubble {
+    padding: 5px 8px;
+    border-radius: 14px;
+  }
+  
+  .messageText {
+    font-size: 12px;
+  }
+  
+  .avatar, .ownAvatar {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .avatarText {
+    font-size: 9px;
+  }
+  
+  .senderName {
+    font-size: 10px;
+  }
+  
+  .timestamp {
+    font-size: 9px;
+  }
+}
+
+/* Animation for new messages */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.messageWrapper {
+  animation: slideIn 0.3s ease-out;
+}

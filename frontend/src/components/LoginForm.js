@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 import { handleFormInputChange } from '../utils/formUtils';
 import styles from './LoginForm.module.css';
 
 export default function LoginForm() {
+  const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     emailOrPhone: '',
     password: ''
@@ -44,18 +48,23 @@ export default function LoginForm() {
     setIsLoading(true);
     
     try {
-      const result = await authService.login({
+      // For demo purposes, we'll simulate a successful login
+      // In a real app, you'd call your backend API here
+      const userData = {
+        id: 1,
+        name: formData.emailOrPhone.split('@')[0] || 'User',
         email: formData.emailOrPhone,
-        password: formData.password
-      });
+        avatar: formData.emailOrPhone.split('@')[0]?.charAt(0).toUpperCase() || 'U'
+      };
 
-      if (result.success) {
-        alert(result.message);
-        // Redirect to dashboard or main app
-        window.location.href = '/dashboard';
-      } else {
-        setErrors({ general: result.message });
-      }
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Login the user
+      login(userData);
+      
+      // Redirect to conversations
+      router.push('/conversations');
       
     } catch (error) {
       console.error('Login error:', error);
