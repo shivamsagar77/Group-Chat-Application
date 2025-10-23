@@ -85,18 +85,17 @@ res.status(201).json(
           return res.status(400).json({success:false,message:"User ID is required"})
         }
         
-        // Fetch all users
+      
         const users = await User.findAll();
         
-        // Fetch conversation members for current user
+    
         const conversationMembers = await conversationMember.findAll({
           where: { user_id: user_id }
         });
-        
-        // Get all user_ids that are in conversations
+       
         const userIdsInConversations = conversationMembers.map(member => member.user_id);
         
-        // Filter users who are NOT in any conversation (exclude current user)
+      
         const usersWithoutConversationMembers = users.filter(user => 
           !userIdsInConversations.includes(user.id) && user.id != user_id
         );
