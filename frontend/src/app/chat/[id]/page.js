@@ -5,12 +5,69 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import MessageList from '../../../components/MessageList';
 import MessageInput from '../../../components/MessageInput';
+import { getConversationMembers } from '../../../services/conversationService';
 import styles from './page.module.css';
 
 export default function ChatPage({ params }) {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const conversationId = params.id;
+  
+  // State for conversation data
+  const [conversation, setConversation] = useState(null);
+  const [conversationLoading, setConversationLoading] = useState(true);
+  const [conversationError, setConversationError] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const messagesEndRef = useRef(null);
+
+  // Fetch conversation data from API
+  const fetchConversationData = async () => {
+    try {
+      setConversationLoading(true);
+      setConversationError(null);
+      
+      const token = localStorage.getItem('group_chat_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await getConversationMembers(conversationId, token);
+      
+      if (response.success) {
+        // Transform API data to match our UI structure
+        const conversationData = {
+          id: conversationId,
+          name: `Conversation ${conversationId}`,
+          avatar: `C${conversationId}`,
+          isOnline: true,
+          isGroup: response.data.length > 2,
+          memberCount: response.data.length,
+          members: response.data,
+          messages: [
+            {
+              id: 1,
+              text: "Welcome to your new conversation! Start chatting now.",
+              sender: "System",
+              timestamp: new Date(),
+              isOwn: false,
+              status: 'delivered'
+            }
+          ]
+        };
+        
+        setConversation(conversationData);
+        setMessages(conversationData.messages);
+      } else {
+        throw new Error(response.message || 'Failed to fetch conversation data');
+      }
+    } catch (error) {
+      console.error('Error fetching conversation:', error);
+      setConversationError(error.message);
+    } finally {
+      setConversationLoading(false);
+    }
+  };
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -19,12 +76,19 @@ export default function ChatPage({ params }) {
     }
   }, [loading, isAuthenticated, router]);
 
-  // Show loading while checking authentication
-  if (loading) {
+  // Fetch conversation data when component mounts
+  useEffect(() => {
+    if (isAuthenticated() && conversationId) {
+      fetchConversationData();
+    }
+  }, [isAuthenticated, conversationId]);
+
+  // Show loading while checking authentication or fetching conversation
+  if (loading || conversationLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>
-        <p>Loading...</p>
+        <p>{loading ? 'Loading...' : 'Loading conversation...'}</p>
       </div>
     );
   }
@@ -34,212 +98,35 @@ export default function ChatPage({ params }) {
     return null;
   }
 
-  // Get conversation data based on ID
-  const getConversationData = (id) => {
-    const conversations = {
-      1: {
-        name: "Alice Johnson",
-        avatar: "AJ",
-        isOnline: true,
-        messages: [
-          {
-            id: 1,
-            text: "Hey! How's the project going?",
-            sender: "Alice Johnson",
-            timestamp: new Date(Date.now() - 3600000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 2,
-            text: "Great! Just finished the backend API integration. The new endpoints are working perfectly.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 3000000),
-            isOwn: true,
-            status: 'read'
-          },
-          {
-            id: 3,
-            text: "That's awesome! I've been working on the frontend components. The new chat UI is looking really clean.",
-            sender: "Alice Johnson",
-            timestamp: new Date(Date.now() - 2400000),
-            isOwn: false,
-            status: 'delivered'
-          }
-        ]
-      },
-      2: {
-        name: "Bob Smith",
-        avatar: "BS",
-        isOnline: true,
-        messages: [
-          {
-            id: 1,
-            text: "Great! Just finished the backend API integration.",
-            sender: "Bob Smith",
-            timestamp: new Date(Date.now() - 3000000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 2,
-            text: "Awesome work Bob! I've been working on the frontend components. The new chat UI is looking really clean.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 2400000),
-            isOwn: true,
-            status: 'read'
-          },
-          {
-            id: 3,
-            text: "Thanks! When do you think we can have a demo ready?",
-            sender: "Bob Smith",
-            timestamp: new Date(Date.now() - 1800000),
-            isOwn: false,
-            status: 'delivered'
-          }
-        ]
-      },
-      3: {
-        name: "Carol Davis",
-        avatar: "CD",
-        isOnline: false,
-        messages: [
-          {
-            id: 1,
-            text: "When do you think we can have a demo ready?",
-            sender: "Carol Davis",
-            timestamp: new Date(Date.now() - 1800000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 2,
-            text: "I'm thinking by end of this week. We just need to polish a few details and add some final touches.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 1200000),
-            isOwn: true,
-            status: 'read'
-          }
-        ]
-      },
-      4: {
-        name: "David Wilson",
-        avatar: "DW",
-        isOnline: true,
-        messages: [
-          {
-            id: 1,
-            text: "Perfect! I'll prepare the presentation slides then. This is going to be amazing! 🚀",
-            sender: "David Wilson",
-            timestamp: new Date(Date.now() - 1200000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 2,
-            text: "Sounds like a plan! Let's schedule a team meeting for Friday to go through everything.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 600000),
-            isOwn: true,
-            status: 'sent'
-          }
-        ]
-      },
-      5: {
-        name: "Emma Brown",
-        avatar: "EB",
-        isOnline: false,
-        messages: [
-          {
-            id: 1,
-            text: "Sounds like a plan! Let's schedule a team meeting.",
-            sender: "Emma Brown",
-            timestamp: new Date(Date.now() - 600000),
-            isOwn: false,
-            status: 'delivered'
-          }
-        ]
-      },
-      6: {
-        name: "Project Team Alpha",
-        avatar: "PT",
-        isOnline: true,
-        isGroup: true,
-        memberCount: 4,
-        messages: [
-          {
-            id: 1,
-            text: "Hey everyone! How's the project going?",
-            sender: "Alice Johnson",
-            timestamp: new Date(Date.now() - 3600000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 2,
-            text: "Great! Just finished the backend API integration. The new endpoints are working perfectly.",
-            sender: "Bob Smith",
-            timestamp: new Date(Date.now() - 3000000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 3,
-            text: "Awesome work Bob! I've been working on the frontend components. The new chat UI is looking really clean.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 2400000),
-            isOwn: true,
-            status: 'read'
-          },
-          {
-            id: 4,
-            text: "That's fantastic! When do you think we can have a demo ready?",
-            sender: "Carol Davis",
-            timestamp: new Date(Date.now() - 1800000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 5,
-            text: "I'm thinking by end of this week. We just need to polish a few details and add some final touches.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 1200000),
-            isOwn: true,
-            status: 'read'
-          },
-          {
-            id: 6,
-            text: "Perfect! I'll prepare the presentation slides then. This is going to be amazing! 🚀",
-            sender: "Alice Johnson",
-            timestamp: new Date(Date.now() - 600000),
-            isOwn: false,
-            status: 'delivered'
-          },
-          {
-            id: 7,
-            text: "Sounds like a plan! Let's schedule a team meeting for Friday to go through everything.",
-            sender: "You",
-            timestamp: new Date(Date.now() - 300000),
-            isOwn: true,
-            status: 'sent'
-          }
-        ]
-      }
-    };
+  // Show error if conversation failed to load
+  if (conversationError) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorIcon}>⚠️</div>
+        <h3>Error Loading Conversation</h3>
+        <p>{conversationError}</p>
+        <button 
+          className={styles.retryButton}
+          onClick={fetchConversationData}
+        >
+          Try Again
+        </button>
+        <button 
+          className={styles.backButton}
+          onClick={() => router.push('/conversations')}
+        >
+          Back to Conversations
+        </button>
+      </div>
+    );
+  }
 
-    return conversations[id] || {
-      name: "Unknown User",
-      avatar: "U",
-      isOnline: false,
-      messages: []
-    };
-  };
+  // Don't render if conversation data is not loaded
+  if (!conversation) {
+    return null;
+  }
 
-  const conversation = getConversationData(conversationId);
-  const [messages, setMessages] = useState(conversation.messages);
-  const [newMessage, setNewMessage] = useState('');
-  const messagesEndRef = useRef(null);
-
+  // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -251,7 +138,7 @@ export default function ChatPage({ params }) {
   const handleSendMessage = (messageText) => {
     if (messageText.trim()) {
       const newMsg = {
-        id: messages.length + 1,
+        id: Date.now(), // Use timestamp as unique ID
         text: messageText,
         sender: user?.name || "You",
         timestamp: new Date(),
@@ -261,7 +148,8 @@ export default function ChatPage({ params }) {
       
       setMessages(prev => [...prev, newMsg]);
       
-      // Simulate message status update
+      // TODO: Send message to API
+      // For now, just simulate message status update
       setTimeout(() => {
         setMessages(prev => 
           prev.map(msg => 

@@ -12,12 +12,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Check if user is logged in (check localStorage)
-    const savedUser = localStorage.getItem('chatUser');
+    const savedUser = localStorage.getItem('group_chat_user');
     if (savedUser) {
       try {
         setUser(JSON.parse(savedUser));
       } catch (error) {
-        localStorage.removeItem('chatUser');
+        localStorage.removeItem('group_chat_user');
       }
     }
     setLoading(false);
@@ -25,12 +25,13 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem('chatUser', JSON.stringify(userData));
+    localStorage.setItem('group_chat_user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('chatUser');
+    localStorage.removeItem('group_chat_user');
+    localStorage.removeItem('group_chat_token');
     router.push('/login');
   };
 

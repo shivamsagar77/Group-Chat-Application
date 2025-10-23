@@ -174,6 +174,70 @@
   margin: 0;
 }
 
+/* Error styles */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px);
+  background: #f0f2f5;
+  gap: 16px;
+  padding: 20px;
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.errorContainer h3 {
+  color: #d32f2f;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.errorContainer p {
+  color: #666;
+  font-size: 16px;
+  margin: 0 0 20px 0;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.retryButton, .backButton {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin: 0 8px;
+}
+
+.retryButton:hover, .backButton:hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.retryButton:active, .backButton:active {
+  transform: translateY(0);
+}
+
+.backButton {
+  background: #6c757d;
+}
+
+.backButton:hover {
+  background: #5a6268;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .chatHeader {

@@ -46,25 +46,38 @@ export default function LoginForm() {
     }
     
     setIsLoading(true);
+    setErrors({});
     
     try {
-      // For demo purposes, we'll simulate a successful login
-      // In a real app, you'd call your backend API here
-      const userData = {
-        id: 1,
-        name: formData.emailOrPhone.split('@')[0] || 'User',
+      // Call the actual login API
+      const credentials = {
         email: formData.emailOrPhone,
-        avatar: formData.emailOrPhone.split('@')[0]?.charAt(0).toUpperCase() || 'U'
+        password: formData.password
       };
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await authService.login(credentials);
       
-      // Login the user
-      login(userData);
-      
-      // Redirect to conversations
-      router.push('/conversations');
+      if (result.success) {
+        // Login the user with actual data from API
+        const userData = {
+          id: result.data.user.id,
+          name: result.data.user.name,
+          email: result.data.user.email,
+          avatar: result.data.user.name?.charAt(0).toUpperCase() || 'U'
+        };
+        
+        // Store token in localStorage
+        if (result.data.token) {
+          localStorage.setItem('group_chat_token', result.data.token);
+        }
+        
+        login(userData);
+        
+        // Redirect to conversations
+        router.push('/conversations');
+      } else {
+        setErrors({ general: result.message || 'Login failed. Please try again.' });
+      }
       
     } catch (error) {
       console.error('Login error:', error);
