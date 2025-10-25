@@ -78,37 +78,59 @@ res.status(201).json(
       })
       }    
     },
-    getUserForChat:async (req,res)=>{
-      try {
-        const {user_id} = req.query;
-        if(!user_id){
-          return res.status(400).json({success:false,message:"User ID is required"})
-        }
-        
-      
-        const users = await User.findAll();
-        
-    
-        const conversationMembers = await conversationMember.findAll({
-          where: { user_id: user_id }
-        });
-       
-        const userIdsInConversations = conversationMembers.map(member => member.user_id);
-        
-      
-        const usersWithoutConversationMembers = users.filter(user => 
-          !userIdsInConversations.includes(user.id) && user.id != user_id
-        );
-        
-        if(usersWithoutConversationMembers.length === 0){
-          return res.status(404).json({success:false,message:"No users without conversation members found"})
-        }
-     
-        return res.status(200).json({success:true,message:"Users without conversation members fetched successfully",data:usersWithoutConversationMembers})
-      } catch (error) {
-        return res.status(500).json({success:false,message:"Internal server error",error:error.message})
-      }
+  getUserForChat: async (req, res) => {
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID is required" });
     }
+
+   
+    const users = await User.findAll({
+      attributes: ["id", "name"],
+    });
+
+  
+    const conversationMembers = await conversationMember.findAll({
+      where: { user_id },
+      attributes: ["member_id"], 
+    });
+
+    
+    const memberIds = conversationMembers.map(
+      (member) => member.member_id
+    );
+
+    const usersWithoutConversation = users.filter(
+      (u) => !memberIds.includes(u.id) && u.id != user_id
+    );
+
+    if (usersWithoutConversation.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found without conversation with current user",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Users fetched successfully who have no conversation with current user",
+      data: usersWithoutConversation,
+    });
+  } catch (error) {
+    console.error("Error in getUserForChat:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
 
 }
 module.exports = userController

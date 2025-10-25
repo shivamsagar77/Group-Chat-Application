@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const UserModel = require("./User")
 
-const ConversationMember = sequelize.define('conversation_members', {
+
+const ConversationMember = sequelize.define('messages', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -12,9 +12,15 @@ const ConversationMember = sequelize.define('conversation_members', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  message:{
+    type:DataTypes.TEXT
+  },
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  status:{
+    type:DataTypes.TEXT
   },
   created_at:{
     type: DataTypes.DATE,
@@ -32,12 +38,8 @@ const ConversationMember = sequelize.define('conversation_members', {
     defaultValue: null
   }
 }, {
-  tableName: 'conversation_members',
+  tableName: 'messages',
   timestamps: false,
 });
 
-ConversationMember.belongsTo(UserModel, {
-  as:"member",
-  foreignKey: "member_id"
-});
 module.exports = ConversationMember;

@@ -41,17 +41,21 @@ export default function ConversationsPage() {
       
       if (response.success) {
         // Transform API data to match our UI structure
-        const transformedConversations = response.data.map((conversation, index) => ({
-          id: conversation.id || index + 1,
-          name: `Conversation ${conversation.id || index + 1}`,
+        console.log('Conversation data:', response.data);
+        const transformedConversations = response.data.map((conversation, index) => {
+          console.log('Individual conversation:', conversation);
+          return {
+            id: conversation.member_id || index + 1,
+          name: conversation.member?.name || `User ${conversation.member_id}`,
           lastMessage: "No messages yet",
           timestamp: new Date(conversation.created_at || Date.now()),
           unreadCount: 0,
-          avatar: `C${conversation.id || index + 1}`,
+          avatar: conversation.member?.name?.charAt(0).toUpperCase() || 'U',
           isOnline: true,
           lastMessageSender: "System",
           isGroup: false
-        }));
+          };
+        });
         
         setConversations(transformedConversations);
       } else {

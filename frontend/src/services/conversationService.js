@@ -104,33 +104,20 @@ export const getUsersForChat = async (userId, token) => {
 // Create new conversation with selected user
 export const createNewConversation = async (currentUserId, selectedUserId, token) => {
   try {
-    // Generate a unique conversation ID
-    const conversationId = Date.now(); // Simple unique ID for now
-    
-    // Add current user to conversation
-    const currentUserResponse = await addConversationMember({
-      member_id: conversationId,
+    // Add selected user to conversation (only one API call needed)
+    const response = await addConversationMember({
+      member_id: selectedUserId,
       user_id: currentUserId
     }, token);
 
-    if (!currentUserResponse.success) {
-      throw new Error('Failed to add current user to conversation');
-    }
-
-    // Add selected user to conversation
-    const selectedUserResponse = await addConversationMember({
-      member_id: conversationId,
-      user_id: selectedUserId
-    }, token);
-
-    if (!selectedUserResponse.success) {
-      throw new Error('Failed to add selected user to conversation');
+    if (!response.success) {
+      throw new Error('Failed to add user to conversation');
     }
 
     return {
       success: true,
       message: 'Conversation created successfully',
-      conversationId: conversationId
+      conversationId: selectedUserId
     };
   } catch (error) {
     console.error('Error creating new conversation:', error);
